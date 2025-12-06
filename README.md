@@ -88,5 +88,53 @@ O projeto é um bom exercício em **gerenciamento de estados visuais** (cartas v
 
 ---
 
-# Projetos_cdt
+# Projetos_cdt (criar cinco linhas a baixo)
 
+## Hipolito
+->
+->
+->
+->
+->
+## Ewerthon
+->
+->
+->
+->
+->
+## Miguel
+->
+->
+->
+->
+->
+## Igor Cardoso
+->
+->
+->
+->
+->
+## Vitoria
+->
+->
+->
+->
+->
+## Gaby
+->
+->
+->
+->
+->
+## Lorenna
+->
+->
+->
+->
+->
+## Lauany
+->
+->
+->
+->
+->
