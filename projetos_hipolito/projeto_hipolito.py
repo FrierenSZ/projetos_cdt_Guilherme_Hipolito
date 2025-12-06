@@ -31,8 +31,8 @@ def testar_conexao_gemini(cliente):
     print("\n[TESTE DA IA] Pedindo uma ideia de Pokémon...")
     try:
         response = cliente.models.generate_content(
-            model='gemini-2.5-flash',
-            contents='Gere uma breve descrição para um Pokémon do tipo Elétrico/Fogo chamado "Volcarona".'
+            model='gemini-2.5-flash-lite',
+            contents='Gere uma breve descrição para um Pokémon comum e diga qual foi o pokemon escolhido".'
         )
         print("--- Resposta da IA ---")
         

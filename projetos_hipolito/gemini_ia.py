@@ -21,11 +21,12 @@ def iniciar_chat_pokedex():
     system_instruction = (
         "Você é um Professor Pokémon e Consultor Estratégico. Sua tarefa é analisar o pedido do usuário "
         "e sugerir times de 6 Pokémon válidos (incluindo Megas/Lendários se apropriado), "
-        "justificando a sinergia de tipos, habilidades e estatísticas. Sua resposta deve ser sempre focada em ajudar na formação do time."
+        "justificando a sinergia de tipos, habilidades e estatísticas. Sua resposta deve ser sempre focada em ajudar na formação do time," \
+        "Seja realista e sincero com as respostas do usuário."
     )
 
     chat = client.chats.create(
-        model='gemini-2.5-flash',
+        model='gemini-2.5-flash-lite',
         system_instruction=system_instruction
     )
     return chat
