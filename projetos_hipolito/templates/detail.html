@@ -1,0 +1,712 @@
+{% extends 'base.html' %}
+
+{% block body_class %}pokemon-detail-page{% endblock %}
+
+{% block title %}{{ pokemon.name|capitalize }} - Detalhes{% endblock %}
+
+{% macro render_evolution(evo) %}
+<div class="evo-stage">
+    <div class="evo-card">
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{{ evo.url.split('/')[-2] }}.png"
+            alt="{{ evo.name }}" loading="lazy">
+        <p><a href="{{ url_for('pokemon_detail', name_or_id=evo.name) }}">{{ evo.name|capitalize }}</a></p>
+    </div>
+    {% if evo.evolves_to %}
+    <span class="evo-arrow">→</span>
+    {% for next_evo in evo.evolves_to %}
+    {{ render_evolution(next_evo) }}
+    {% endfor %}
+    {% endif %}
+</div>
+{% endmacro %}
+
+{% block content %}
+<div class="pokemon-detail-wrapper">
+    <div class="pokemon-detail-header" data-type="{{ pokemon.types[0] }}">
+        <div class="header-content">
+            <a href="{{ url_for('pokedex') }}" class="btn-back-detail">← Voltar</a>
+            <h1 class="pokemon-name">{{ pokemon.name|capitalize }}</h1>
+            <span class="pokemon-number">#{{ '%04d'|format(pokemon.id) }}</span>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <aside class="dashboard-sidebar">
+            <nav class="sidebar-nav">
+                <button class="nav-btn active" data-tab="overview">
+                    <span class="nav-icon">📊</span> <span class="nav-text">Visão Geral</span>
+                </button>
+                <button class="nav-btn" data-tab="moves" id="btn-load-moves">
+                    <span class="nav-icon">⚔️</span> <span class="nav-text">Ataques</span>
+                </button>
+                <button class="nav-btn" data-tab="z-moves" id="btn-load-zmoves" disabled>
+                    <span class="nav-icon">✨</span> <span class="nav-text">Z-Moves</span>
+                </button>
+            </nav>
+        </aside>
+
+        <main class="dashboard-content">
+
+            <section id="tab-overview" class="tab-content active">
+                <div class="overview-grid">
+                    <div class="showcase-area">
+                        <div class="pokemon-showcase-large">
+                            <img id="main-artwork" src="{{ pokemon.sprites.artwork_default }}" alt="{{ pokemon.name }}">
+                            <div class="shiny-wrapper">
+                                <label class="shiny-toggle-modern">
+                                    <input type="checkbox" id="shiny-toggle" onchange="toggleShiny()">
+                                    <span class="slider"></span>
+                                    <span class="label-text">Shiny ✨</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        {% if species and species.flavor_text %}
+                        <div class="pokemon-description-compact">
+                            <p>"{{ species.flavor_text }}"</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="data-area">
+                        <div class="info-card">
+                            <h3>Dados Básicos</h3>
+                            <div class="basic-data-grid">
+                                <div class="data-row">
+                                    <span class="label">Tipo:</span>
+                                    <div class="type-list-mini">
+                                        {% for type in pokemon.types %}
+                                        <span class="type-badge-mini type-{{ type }}">{{ type|capitalize }}</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="data-row">
+                                    <span class="label">Altura:</span>
+                                    <span class="val">{{ (pokemon.height / 10)|round(1) }}m</span>
+                                </div>
+                                <div class="data-row">
+                                    <span class="label">Peso:</span>
+                                    <span class="val">{{ (pokemon.weight / 10)|round(1) }}kg</span>
+                                </div>
+                                <div class="data-row">
+                                    <span class="label">Habilidades:</span>
+                                    <div class="abilities-mini">
+                                        {% for ability in abilities %}
+                                        <span class="ability-pill" title="{{ ability.description }}">{{
+                                            ability.name|replace('-', ' ')|capitalize }}</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-card stats-card">
+                            <h3>Estatísticas Base</h3>
+                            <div class="stats-table">
+                                <div class="stat-row header">
+                                    <span class="col-stat">Status</span>
+                                    <span class="col-val">Base</span>
+                                    <span class="col-bar"></span>
+                                    <span class="col-min">Min</span>
+                                    <span class="col-max">Max</span>
+                                </div>
+
+                                {% for stat, item in pokemon.stats_ranges.items() %}
+                                <div class="stat-row">
+                                    <span class="col-stat label">{{ stat|replace('-', ' ')|replace('special',
+                                        'sp.')|title }}</span>
+                                    <span class="col-val">{{ item.base }}</span>
+
+                                    <div class="col-bar">
+                                        <div class="stat-bar-track-new">
+                                            <div class="stat-bar" data-value="{{ item.base }}"
+                                                data-color="{{ item.color }}" style="width: 0%;">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <span class="col-min">{{ item.min }}</span>
+                                    <span class="col-max">{{ item.max }}</span>
+                                </div>
+                                {% endfor %}
+
+                                <div class="stat-row total">
+                                    <span class="col-stat label">Total</span>
+                                    <span class="col-val">{{ pokemon.stats.values()|sum }}</span>
+                                    <span class="col-bar"></span>
+                                    <span class="col-min">Min</span>
+                                    <span class="col-max">Max</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="evolution-wrapper-overview" style="margin-top: 40px;">
+                    {% if evolution_chain %}
+                    <div class="evolution-container">
+                        <h3>Linha Evolutiva</h3>
+                        <div class="evolution-chain-new">
+                            {{ render_evolution(evolution_chain) }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if varieties and varieties|length > 0 %}
+                    <div class="varieties-container" style="margin-top: 40px;">
+                        <h3>Mega Evoluções & Formas Alternativas</h3>
+                        <div class="varieties-grid">
+                            {% for form in varieties %}
+                            
+                            {% set form_name_clean = form.name|replace(pokemon.name, '')|replace('-', ' ')|trim|capitalize %}
+                            {% set form_image = form.sprites.artwork_default or form.sprites.front_default %}
+
+                            <a href="{{ url_for('pokemon_detail', name_or_id=form.name) }}" class="variety-card">
+                                <div class="variety-image-wrapper">
+                                    <img src="{{ form_image }}" alt="{{ form.name }}" loading="lazy">
+                                </div>
+                                <p class="variety-name">{{ form_name_clean }}</p>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% elif species.varieties and species.varieties|length > 0 %}
+                    <div class="varieties-container" style="margin-top: 40px;">
+                        <h3>Formas Alternativas</h3>
+                        <div class="varieties-grid">
+                            {% for variety in species.varieties %}
+                                {% if not variety.is_default %}
+                                <div class="variety-card simple">
+                                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{{ variety.pokemon.url.split('/')[-2] }}.png"
+                                         alt="{{ variety.pokemon.name }}" loading="lazy">
+                                    <p>{{ variety.pokemon.name|replace(pokemon.name, '')|replace('-', ' ')|trim|capitalize }}</p>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+
+            <section id="tab-moves" class="tab-content">
+                <div class="moves-header">
+                    <h3>Ataques Disponíveis <span class="badge-count">{{ pokemon.moves|length }}</span></h3>
+                    <div class="moves-search-wrapper">
+                        <input type="text" id="move-search" placeholder="🔍 Buscar ataque..." autocomplete="off">
+                    </div>
+                </div>
+
+                <div class="moves-filters">
+                    <select id="filter-type">
+                        <option value="">Todos Tipos</option>
+                        {% set all_types = ['normal', 'fire', 'water', 'electric', 'grass', 'ice', 'fighting', 'poison', 'ground', 'flying', 'psychic', 'bug', 'rock', 'ghost', 'dragon', 'dark', 'steel', 'fairy'] %}
+                        {% for type in all_types %}
+                        <option value="{{ type }}">{{ type|capitalize }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <select id="filter-damage-class">
+                        <option value="">Todas Classes</option>
+                        <option value="physical">Físico</option>
+                        <option value="special">Especial</option>
+                        <option value="status">Status</option>
+                    </select>
+
+                    <select id="filter-power-sort">
+                        <option value="">Sem Ordenação (Poder)</option>
+                        <option value="power-desc">Poder Base (Maior ↑)</option>
+                        <option value="power-asc">Poder Base (Menor ↓)</option>
+                    </select>
+                </div>
+
+                <div id="moves-loader" style="display: none; text-align: center; padding: 20px;">
+                    <p>Carregando ataques...</p>
+                </div>
+
+                <div class="moves-grid" id="moves-container">
+                    </div>
+            </section>
+
+            <section id="tab-z-moves" class="tab-content">
+                <h3>Z-Moves Genéricos (Por Tipo)</h3>
+                <p>O Poder Base do Z-Move é determinado pelo movimento de dano mais forte do mesmo tipo que o Pokémon aprende.</p>
+                <div id="z-moves-container" class="moves-grid">
+                    <div class="moves-loader" style="text-align: center; padding: 20px;">
+                        Carregando Z-Moves...
+                    </div>
+                </div>
+                
+                <h3 style="margin-top: 30px;">Z-Moves Específicos do Pokémon</h3>
+                <p id="z-moves-specific-info" style="color:#aaa;">Estes requerem um movimento específico e um cristal Z específico. Não há dados disponíveis na PokeAPI sobre Z-Moves específicos.</p>
+            </section>
+
+        </main>
+    </div>
+</div>
+
+<style>
+
+.varieties-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.variety-card {
+    background: #2a2a2a;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    transition: transform 0.2s, background 0.2s;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.variety-card:hover {
+    transform: translateY(-5px);
+    background: #333;
+    border-color: #555;
+}
+
+.variety-image-wrapper {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.variety-image-wrapper img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.variety-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    color: #eee;
+}
+
+
+
+.variety-card.simple img {
+    width: 80px;
+    height: 80px;
+}
+</style>
+
+<script>
+    // --- NAVEGAÇÃO ---
+    const navBtns = document.querySelectorAll('.nav-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    navBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            navBtns.forEach(b => b.classList.remove('active'));
+            tabContents.forEach(t => t.classList.remove('active'));
+
+            btn.classList.add('active');
+            const tabId = btn.dataset.tab;
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+
+            if (tabId === 'moves' && !movesLoaded) {
+                loadMoves();
+            } else if (tabId === 'z-moves') {
+                if (movesLoaded) {
+                    loadZMoves();
+                } else {
+                    alert('Por favor, aguarde o carregamento dos ataques na aba anterior.');
+                    document.querySelector('.nav-btn[data-tab="moves"]').click();
+                }
+            }
+        });
+    });
+
+    // --- SHINY ---
+    const sprites = {
+        default: { artwork: "{{ pokemon.sprites.artwork_default }}" },
+        shiny: { artwork: "{{ pokemon.sprites.artwork_shiny }}" }
+    };
+
+    function toggleShiny() {
+        const isShiny = document.getElementById('shiny-toggle').checked;
+        const artwork = isShiny ? sprites.shiny.artwork : sprites.default.artwork;
+        document.getElementById('main-artwork').src = artwork;
+    }
+
+    // --- VARIÁVEIS GLOBAIS ---
+    const movesData = JSON.parse('{{ pokemon.moves | tojson | safe }}');
+    const pokemonTypes = JSON.parse('{{ pokemon.types | tojson | safe }}');
+    
+    let movesLoaded = false;
+    let zMovesLoaded = false;
+    
+    const movesContainer = document.getElementById('moves-container');
+    const moveSearch = document.getElementById('move-search');
+    const btnLoadZMoves = document.getElementById('btn-load-zmoves');
+    
+    // Filtros
+    const filterType = document.getElementById('filter-type');
+    const filterDamageClass = document.getElementById('filter-damage-class');
+    const filterPowerSort = document.getElementById('filter-power-sort');
+
+    // CACHES (Nossa fonte da verdade)
+    const moveDataCache = {}; 
+    const MAX_CONCURRENT_REQUESTS = 30; // Limite de requisições rodando ao mesmo tempo
+
+    // Carregar do LocalStorage se existir
+    try {
+        if (localStorage.getItem('moveDataCache')) {
+            Object.assign(moveDataCache, JSON.parse(localStorage.getItem('moveDataCache')));
+        }
+    } catch (e) {}
+
+    function saveCache() {
+        try {
+            localStorage.setItem('moveDataCache', JSON.stringify(moveDataCache));
+        } catch (e) { }
+    }
+
+    // --- CARREGAMENTO INICIAL ---
+    function loadMoves() {
+        if (movesLoaded) return;
+
+        const loader = document.getElementById('moves-loader');
+        loader.style.display = 'block';
+        
+        // Renderiza os cartões vazios inicialmente
+        movesContainer.innerHTML = movesData.map(move => {
+            const displayName = move.name.replace(/-/g, ' ');
+            const cached = moveDataCache[move.name];
+            
+            const typeClass = cached ? `type-${cached.type}` : '';
+            const typeName = cached ? cached.type : '...';
+            
+            return `
+                <div class="move-card ${typeClass}" id="card-${move.name}" data-move-name="${move.name}">
+                    <div class="move-name">${displayName}</div>
+                    <span class="move-type-name">${typeName}</span>
+                    <div class="move-tooltip" id="tooltip-${move.name}">
+                        <div class="loading">Carregando...</div> 
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        setupMoveHoverEvents();
+        loader.style.display = 'none';
+        movesLoaded = true;
+
+        // --- MUDANÇA: Inicia o Carregamento com Limite de Concorrência ---
+        controlledConcurrencyFetch(movesData.map(m => m.name)).then(() => {
+             console.log("Todos os ataques carregados e processados!");
+             btnLoadZMoves.disabled = false;
+             filterAndSortMoves(); // Aplica filtro final garantido
+        });
+    }
+
+    // --- FUNÇÃO DE CONTROLE DE CONCORRÊNCIA ---
+    async function controlledConcurrencyFetch(moveNames) {
+        console.log(`Iniciando download com concorrência máxima de ${MAX_CONCURRENT_REQUESTS} requisições.`);
+        const queue = [...moveNames];
+        const activePromises = new Set();
+
+        while (queue.length > 0 || activePromises.size > 0) {
+            // Inicia novas requisições até o limite
+            while (queue.length > 0 && activePromises.size < MAX_CONCURRENT_REQUESTS) {
+                const moveName = queue.shift();
+                
+                // Cria a promessa e adiciona ao conjunto ativo
+                const promise = fetchMoveDetails(moveName)
+                    .finally(() => {
+                        // Quando a promessa resolve (ou falha), remove do conjunto ativo
+                        activePromises.delete(promise);
+                    });
+                activePromises.add(promise);
+            }
+
+            // Espera a requisição ativa mais rápida terminar para abrir espaço para a próxima
+            if (activePromises.size > 0) {
+                await Promise.race(activePromises);
+            }
+        }
+    }
+
+
+    async function fetchMoveDetails(moveName) {
+        // Se já tem cache, retorna imediatamente e atualiza UI
+        if (moveDataCache[moveName] && moveDataCache[moveName].complete) {
+            updateCardUI(moveName, moveDataCache[moveName]);
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/move/${moveName}`);
+            const data = await res.json();
+            if (data.error) return;
+
+            const moveInfo = {
+                type: data.type,
+                power: (data.power === null || data.power === undefined) ? 0 : parseInt(data.power),
+                damageClass: data.damage_class ? data.damage_class.toLowerCase() : 'status', 
+                accuracy: data.accuracy,
+                pp: data.pp,
+                effect: data.effect,
+                complete: true
+            };
+
+            moveDataCache[moveName] = moveInfo;
+            saveCache();
+
+            // Chamamos a atualização da UI E o filtro aqui
+            updateCardUI(moveName, moveInfo);
+        } catch (e) {
+            console.error(`Erro ao carregar ataque ${moveName}`, e);
+        }
+    }
+
+    const typeColors = {
+        'normal': '#A8A77A', 'fire': '#EE8130', 'water': '#6390F0', 'electric': '#F7D02C',
+        'grass': '#7AC74C', 'ice': '#96D9D6', 'fighting': '#C22E28', 'poison': '#A33EA1',
+        'ground': '#E2BF65', 'flying': '#A98FF3', 'psychic': '#F95587', 'bug': '#A6B91A',
+        'rock': '#B6A136', 'ghost': '#735797', 'dragon': '#6F35FC', 'dark': '#1b1b1b',
+        'steel': '#B7B7CE', 'fairy': '#D685AD'
+    };
+
+    function updateCardUI(moveName, info) {
+        const card = document.getElementById(`card-${moveName}`);
+        if (!card) return;
+
+        // Atualização Visual
+        const col = typeColors[info.type] || '#777';
+        card.style.background = `linear-gradient(135deg, ${col} 0%, ${col}CC 100%)`;
+        card.style.borderColor = col;
+        
+        const span = card.querySelector('.move-type-name');
+        if (span) span.textContent = info.type.charAt(0).toUpperCase() + info.type.slice(1);
+
+        // Constrói Tooltip
+        const tooltipHtml = `
+            <div class="tooltip-header">
+                <span class="type-badge type-${info.type}">${info.type}</span>
+                <span class="damage-class">${info.damageClass}</span>
+            </div>
+            <div class="tooltip-stats">
+                <span><strong>Dano:</strong> ${info.power > 0 ? info.power : '-'}</span>
+                <span><strong>Precisão:</strong> ${info.accuracy || '-'}%</span>
+                <span><strong>Usos:</strong> ${info.pp}</span>
+            </div>
+            <div class="tooltip-effect">${info.effect}</div>
+        `;
+        
+        const tooltip = document.getElementById(`tooltip-${moveName}`);
+        if (tooltip) {
+            tooltip.innerHTML = tooltipHtml;
+            tooltip.classList.add('loaded');
+        }
+        
+        // Chamamos o filtro imediatamente após a atualização de CADA cartão
+        filterAndSortMoves();
+    }
+
+    function setupMoveHoverEvents() {
+        movesContainer.addEventListener('mouseover', (e) => {
+            const card = e.target.closest('.move-card');
+            if (!card) return;
+            const tooltip = card.querySelector('.move-tooltip');
+            if (tooltip) tooltip.classList.add('active');
+        });
+        movesContainer.addEventListener('mouseout', (e) => {
+            const card = e.target.closest('.move-card');
+            if (!card) return;
+            const tooltip = card.querySelector('.move-tooltip');
+            if (tooltip) tooltip.classList.remove('active');
+        });
+    }
+
+    // --- LÓGICA DE FILTRO BLINDADA (Lê o Cache) ---
+    function filterAndSortMoves() {
+        const cards = Array.from(document.querySelectorAll('#moves-container .move-card'));
+        
+        const selType = filterType.value;
+        const selClass = filterDamageClass.value;
+        const selSort = filterPowerSort.value;
+        const term = moveSearch.value.toLowerCase();
+
+        let visibleCards = [];
+
+        cards.forEach(card => {
+            const moveName = card.dataset.moveName;
+            const data = moveDataCache[moveName]; 
+
+            // Pega o nome do card.innertext para a busca
+            const mName = card.innerText.toLowerCase();
+            
+            let shouldShow = true;
+
+            // 1. TRATAMENTO DE CARTÕES NÃO CARREGADOS VS. FILTRO ATIVO
+            if (!data) {
+                // Se a carta não carregou E o usuário filtrou por TIPO ou CLASSE, esconde
+                if (selType || selClass) {
+                    shouldShow = false;
+                }
+            } else {
+                // 2. CHECAGEM DE CONTEÚDO (DADO JÁ CHEGOU)
+                const mType = data.type || '';
+                const mClass = data.damageClass || '';
+                const mPower = data.power || 0; 
+
+                const matchType = !selType || mType === selType;
+                // A chave aqui é garantir que mClass é o valor que a API retorna (ex: 'physical')
+                const matchClass = !selClass || mClass === selClass; 
+                const matchSearch = !term || mName.includes(term);
+
+                if (!(matchType && matchClass && matchSearch)) {
+                    shouldShow = false;
+                }
+                
+                if (shouldShow) {
+                    visibleCards.push({ card: card, power: mPower });
+                }
+            }
+
+            // 3. APLICAÇÃO DA VISIBILIDADE
+            card.style.display = shouldShow ? '' : 'none';
+        });
+
+        // 4. ORDENAÇÃO
+        if (selSort) {
+            visibleCards.sort((a, b) => {
+                const powerA = a.power || 0;
+                const powerB = b.power || 0;
+                
+                if (selSort === 'power-desc') return powerB - powerA;
+                if (selSort === 'power-asc') return powerA - powerB;
+                return 0;
+            });
+            
+            // Re-anexa na ordem correta
+            visibleCards.forEach(item => movesContainer.appendChild(item.card));
+        }
+    }
+
+    // Eventos de Filtro
+    filterType.addEventListener('change', filterAndSortMoves);
+    filterDamageClass.addEventListener('change', filterAndSortMoves);
+    filterPowerSort.addEventListener('change', filterAndSortMoves);
+    moveSearch.addEventListener('input', filterAndSortMoves);
+
+
+    // --- Z-MOVES ---
+    function calculateZMovePower(basePower) {
+        if (basePower >= 140) return 200;
+        if (basePower >= 130) return 195;
+        if (basePower >= 120) return 190;
+        if (basePower >= 110) return 185;
+        if (basePower >= 100) return 180;
+        if (basePower >= 90) return 175;
+        if (basePower >= 80) return 160;
+        if (basePower >= 70) return 140;
+        if (basePower >= 60) return 120;
+        if (basePower >= 1) return 100;
+        return 0;
+    }
+
+    async function loadZMoves() {
+        if (zMovesLoaded) return;
+        const container = document.getElementById('z-moves-container');
+        container.innerHTML = '<div class="moves-loader" style="text-align: center; padding: 20px;">Calculando Z-Moves...</div>';
+        
+        try {
+            const res = await fetch(`/api/z_moves_generic`);
+            const zMovesList = await res.json();
+            
+            let zMoveCards = '';
+            
+            // Usamos a lista de cores global
+            // const typeColors = { ... }
+
+            for (const zMove of zMovesList) {
+                const zMoveType = zMove.type.toLowerCase();
+                if (!pokemonTypes.includes(zMoveType)) continue; 
+
+                let maxBasePower = 0;
+                let moveName = '';
+                let hasStatusMove = false;
+                
+                for (const mName in moveDataCache) {
+                    const mData = moveDataCache[mName];
+                    if (mData.type === zMoveType) {
+                        if (mData.damageClass === 'status') hasStatusMove = true;
+                        if (mData.damageClass !== 'status' && mData.power > maxBasePower) {
+                            maxBasePower = mData.power;
+                            moveName = mName.replace(/-/g, ' ');
+                        }
+                    }
+                }
+                
+                const zMovePower = calculateZMovePower(maxBasePower);
+                const displayZName = zMove.name.replace(/-/g, ' ').replace(/(^\w|\s\w)/g, m => m.toUpperCase());
+
+                let powerText, baseMoveText, classBadge;
+                if (zMovePower === 0 && hasStatusMove) {
+                    powerText = 'Efeito: Buff de Status';
+                    baseMoveText = `Qualquer Status (${zMoveType})`;
+                    classBadge = 'Status';
+                } else if (zMovePower === 0) {
+                     powerText = 'Não Ativável';
+                     baseMoveText = `Requer move de ${zMoveType}`;
+                     classBadge = 'N/A';
+                } else {
+                     powerText = `Poder Base: ${zMovePower}`;
+                     baseMoveText = `${moveName} (BP: ${maxBasePower})`;
+                     classBadge = zMove.physical ? 'Físico/Especial' : 'Especial';
+                }
+                
+                const typeColor = typeColors[zMoveType] || '#555';
+
+                zMoveCards += `
+                    <div class="move-card type-z-move" data-move-type="${zMoveType}" style="background-color: ${typeColor}; border-color: ${typeColor};">
+                        <div class="move-name">${displayZName}</div>
+                        <span class="move-type-name">${zMoveType.toUpperCase()} Z</span>
+                        <div class="move-tooltip">
+                            <div class="tooltip-header">
+                                <span class="type-badge type-${zMoveType}">${zMoveType}</span>
+                                <span class="damage-class">${classBadge}</span>
+                            </div>
+                            <div class="tooltip-stats"><span><strong>${powerText}</strong></span></div>
+                            <div class="tooltip-effect">Req: ${baseMoveText}</div>
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = zMoveCards;
+            zMovesLoaded = true;
+        } catch (e) {
+            console.error(e);
+            container.innerHTML = 'Erro ao carregar Z-Moves.';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.stat-bar').forEach(bar => {
+            const val = parseInt(bar.dataset.value);
+            const color = bar.dataset.color || '#ccc';
+            bar.style.setProperty('background-color', color, 'important');
+            bar.style.boxShadow = `0 0 8px ${color}40`;
+            setTimeout(() => { bar.style.width = Math.min((val / 255) * 100, 100) + '%'; }, 100);
+        });
+        const header = document.querySelector('.pokemon-detail-header');
+        if (header) header.classList.add('type-' + header.dataset.type);
+    });
+</script>
+{% endblock %}

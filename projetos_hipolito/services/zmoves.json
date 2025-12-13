@@ -1,0 +1,254 @@
+[
+  {
+    "name": "breakneck-blitz",
+    "type": "normal",
+    "physical": {
+      "id": 622,
+      "power": null,
+      "damage_class": "physical"
+    },
+    "special": {
+      "id": 623,
+      "power": null,
+      "damage_class": "special"
+    }
+  },
+  {
+    "name": "all-out-pummeling",
+    "type": "fighting",
+    "physical": {
+      "id": 624,
+      "power": null,
+      "damage_class": "physical"
+    },
+    "special": {
+      "id": 625,
+      "power": null,
+      "damage_class": "special"
+    }
+  },
+  {
+    "name": "supersonic-skystrike",
+    "type": "flying",
+    "physical": {
+      "id": 626,
+      "power": null,
+      "damage_class": "physical"
+    },
+    "special": {
+      "id": 627,
+      "power": null,
+      "damage_class": "special"
+    }
+  },
+  {
+    "name": "acid-downpour",
+    "type": "poison",
+    "physical": {
+      "id": 628,
+      "power": null,
+      "damage_class": "physical"
+    },
+    "special": {
+      "id": 629,
+      "power": null,
+      "damage_class": "special"
+    }
+  },
+  {
+    "name": "tectonic-rage",
+    "type": "ground",
+    "physical": {
+      "id": 630,
+      "power": null,
+      "damage_class": "physical"
+    },
+    "special": {
+      "id": 631,
+      "power": null,
+      "damage_class": "special"
+    }
+  },
+  {
+    "name": "continental-crush",
+    "type": "rock",
+    "physical": {
+      "id": 632,
+      "power": null,
+      "damage_class": "physical"
+    },
+    "special": {
+      "id": 633,
+      "power": null,
+      "damage_class": "special"
+    }
+  },
+  {
+    "name": "savage-spin-out",
+    "type": "bug",
+    "physical": {
+      "id": 634,
+      "power": null,
+      "damage_class": "physical"
+    },
+    "special": {
+      "id": 635,
+      "power": null,
+      "damage_class": "special"
+    }
+  },
+  {
+    "name": "never-ending-nightmare",
+    "type": "ghost",
+    "physical": {
+      "id": 636,
+      "power": null,
+      "damage_class": "physical"
+    },
+    "special": {
+      "id": 637,
+      "power": null,
+      "damage_class": "special"
+    }
+  },
+  {
+    "name": "corkscrew-crash",
+    "type": "steel",
+    "physical": {
+      "id": 638,
+      "power": null,
+      "damage_class": "physical"
+    },
+    "special": {
+      "id": 639,
+      "power": null,
+      "damage_class": "special"
+    }
+  },
+  {
+    "name": "inferno-overdrive",
+    "type": "fire",
+    "physical": {
+      "id": 640,
+      "power": null,
+      "damage_class": "physical"
+    },
+    "special": {
+      "id": 641,
+      "power": null,
+      "damage_class": "special"
+    }
+  },
+  {
+    "name": "hydro-vortex",
+    "type": "water",
+    "physical": {
+      "id": 642,
+      "power": null,
+      "damage_class": "physical"
+    },
+    "special": {
+      "id": 643,
+      "power": null,
+      "damage_class": "special"
+    }
+  },
+  {
+    "name": "gigavolt-havoc",
+    "type": "electric",
+    "physical": {
+      "id": 644,
+      "power": null,
+      "damage_class": "physical"
+    },
+    "special": {
+      "id": 645,
+      "power": null,
+      "damage_class": "special"
+    }
+  },
+  {
+    "name": "bloom-doom",
+    "type": "grass",
+    "physical": {
+      "id": 646,
+      "power": null,
+      "damage_class": "physical"
+    },
+    "special": {
+      "id": 647,
+      "power": null,
+      "damage_class": "special"
+    }
+  },
+  {
+    "name": "shattered-psyche",
+    "type": "psychic",
+    "physical": {
+      "id": 648,
+      "power": null,
+      "damage_class": "physical"
+    },
+    "special": {
+      "id": 649,
+      "power": null,
+      "damage_class": "special"
+    }
+  },
+  {
+    "name": "subzero-slammer",
+    "type": "ice",
+    "physical": {
+      "id": 650,
+      "power": null,
+      "damage_class": "physical"
+    },
+    "special": {
+      "id": 651,
+      "power": null,
+      "damage_class": "special"
+    }
+  },
+  {
+    "name": "devastating-drake",
+    "type": "dragon",
+    "physical": {
+      "id": 652,
+      "power": null,
+      "damage_class": "physical"
+    },
+    "special": {
+      "id": 653,
+      "power": null,
+      "damage_class": "special"
+    }
+  },
+  {
+    "name": "black-hole-eclipse",
+    "type": "dark",
+    "physical": {
+      "id": 654,
+      "power": null,
+      "damage_class": "physical"
+    },
+    "special": {
+      "id": 655,
+      "power": null,
+      "damage_class": "special"
+    }
+  },
+  {
+    "name": "twinkle-tackle",
+    "type": "fairy",
+    "physical": {
+      "id": 656,
+      "power": null,
+      "damage_class": "physical"
+    },
+    "special": {
+      "id": 657,
+      "power": null,
+      "damage_class": "special"
+    }
+  }
+]

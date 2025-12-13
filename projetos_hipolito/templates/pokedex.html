@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+
+{% block body_class %}pokedex-page{% endblock %}
+
+{% block title %}Pokédex{% endblock %}
+
+{% block content %}
+
+<div class="pokedex-container">
+    <a href="{{ url_for('index') }}" class="btn-back-home">← Voltar</a>
+    <div class="pokedex-header">
+        <h1>Pokédex</h1>
+        <div></div>
+    </div>
+
+    <p class="pokedex-info">Mostrando {{ pokemons|length }} de {{ total }} Pokémons (Página {{ page }} de {{ total_pages
+        }})</p>
+
+    <div class="search-bar-wrapper">
+    <input type="text" id="pokemon-search" placeholder="Pesquisar Pokémon (nome ou #id)...">
+    <button id="search-btn">Buscar</button>
+    
+    <div id="autocomplete-results">
+        </div>
+        
+    </div>
+
+    <div class="pokemon-grid-large">
+        {% for pokemon in pokemons %}
+        <div class="pokemon-card-large" data-url="{{ url_for('pokemon_detail', name_or_id=pokemon.name) }}">
+            <div class="pokemon-artwork">
+                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{{ pokemon.url.split('/')[-2] }}.png"
+                    alt="{{ pokemon.name }}" loading="lazy">
+            </div>
+            <div class="pokemon-info">
+                <span class="pokemon-id">#{{ pokemon.url.split('/')[-2] }}</span>
+                <h3>{{ pokemon.name|capitalize }}</h3>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="pagination full-pages">
+        
+        {% if page > 1 %}
+        <a href="{{ url_for('pokedex', page=page-1) }}" class="page-btn-arrow">← Anterior</a>
+        {% endif %}
+
+        {% set pages_to_show = 5 %}
+        {% set start_page = [1, page - pages_to_show // 2] | max %}
+        {% set end_page = [total_pages, start_page + pages_to_show - 1] | min %}
+        
+        {% if start_page > 1 %}
+            <a href="{{ url_for('pokedex', page=1) }}" class="page-num">1</a>
+            {% if start_page > 2 %}
+                <span class="page-dots">...</span>
+            {% endif %}
+        {% endif %}
+
+        {% for p in range(start_page, end_page + 1) %}
+            {% if p == page %}
+                <span class="page-num current">{{ p }}</span>
+            {% else %}
+                <a href="{{ url_for('pokedex', page=p) }}" class="page-num">{{ p }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if end_page < total_pages %}
+            {% if end_page < total_pages - 1 %}
+                <span class="page-dots">...</span>
+            {% endif %}
+            <a href="{{ url_for('pokedex', page=total_pages) }}" class="page-num">{{ total_pages }}</a>
+        {% endif %}
+
+        {% if page < total_pages %}
+            <a href="{{ url_for('pokedex', page=page+1) }}" class="page-btn-arrow">Próxima →</a>
+        {% endif %}
+
+    </div>
+</div>
+
+<script>
+    const searchInput = document.getElementById('pokemon-search');
+    const searchBtn = document.getElementById('search-btn');
+    const resultsContainer = document.getElementById('autocomplete-results');
+    let searchTimeout;
+
+    async function fetchAutocomplete(query) {
+        if (query.length < 2) {
+            resultsContainer.style.display = 'none';
+            return;
+        }
+
+        const apiUrl = `/api/search_pokemon?query=${query}`; 
+
+        try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) {
+                resultsContainer.style.display = 'none';
+                return;
+            }
+            const data = await response.json();
+            renderResults(data);
+        } catch (error) {
+            resultsContainer.style.display = 'none';
+        }
+    }
+
+    function renderResults(pokemons) {
+        resultsContainer.innerHTML = '';
+        
+        if (pokemons.length === 0) {
+            resultsContainer.innerHTML = '<div class="autocomplete-item" style="cursor: default; color: #aaa;">Nenhum Pokémon encontrado.</div>';
+            resultsContainer.style.display = 'block';
+            return;
+        }
+
+        pokemons.forEach(pokemon => {
+            const item = document.createElement('div');
+            item.className = 'autocomplete-item';
+            item.setAttribute('data-name', pokemon.name); 
+            
+            const pokemonId = pokemon.id; 
+            const imgUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`;
+
+            item.innerHTML = `
+                <img src="${imgUrl}" alt="${pokemon.name}">
+                <div class="autocomplete-info">
+                    <span class="name">${pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)}</span>
+                    <span class="id">#${pokemonId}</span>
+                </div>
+            `;
+            
+            item.addEventListener('click', () => {
+                window.location.href = `/pokemon/${pokemon.name}`;
+            });
+
+            resultsContainer.appendChild(item);
+        });
+
+        resultsContainer.style.display = 'block';
+    }
+
+    searchInput.addEventListener('input', (e) => {
+        clearTimeout(searchTimeout);
+        const query = e.target.value.toLowerCase().trim();
+        
+        if (query.length === 0) {
+            resultsContainer.style.display = 'none';
+            return;
+        }
+
+        searchTimeout = setTimeout(() => {
+            fetchAutocomplete(query);
+        }, 300);
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.search-bar-wrapper')) {
+            resultsContainer.style.display = 'none';
+        }
+    });
+
+    searchBtn.addEventListener('click', handleSearch);
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    });
+
+    function handleSearch() {
+        const input = searchInput.value.toLowerCase().trim();
+        if (input) {
+            window.location.href = `/pokemon/${input}`;
+        }
+    }
+
+    document.querySelectorAll('.pokemon-card-large').forEach(card => {
+        card.addEventListener('click', () => {
+            window.location.href = card.dataset.url;
+        });
+    });
+</script>
+{% endblock %}

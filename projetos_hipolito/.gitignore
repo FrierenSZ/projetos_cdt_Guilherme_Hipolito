@@ -1,5 +1,25 @@
-.env
-venv/
+# Python
 __pycache__/
-*.pyc
-assets/sprites
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+*.log
+.env
+.gitignore

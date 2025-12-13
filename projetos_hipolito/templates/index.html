@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block body_class %}home-page{% endblock %}
+
+{% block content %}
+<div id="fullscreen-modal" class="fullscreen-modal">
+    <div class="modal-content">
+        <h2>⚠️ Recomendação</h2>
+        <p>Para uma melhor experiência, recomendamos usar o modo tela cheia!</p>
+        <div class="modal-buttons">
+            <button id="activate-fullscreen" class="modal-btn btn-activate">Ativar Tela Cheia</button>
+            <button id="ignore-fullscreen" class="modal-btn btn-ignore">Ignorar</button>
+        </div>
+    </div>
+</div>
+
+<div class="home-container">
+    <div class="home-content">
+        <h1 class="home-title">Bem-vindo ao PokéBattle!</h1>
+        <p class="home-subtitle">Explore a Pokédex, batalhe contra a IA ou desafie seus amigos!</p>
+
+        <div class="home-buttons">
+            <a href="{{ url_for('pokedex') }}" id="btn-pokedex" class="btn-home btn-primary">Acessar Pokédex</a>
+            <a href="#" class="btn-home btn-secondary">Batalhar (Em breve)</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const modal = document.getElementById('fullscreen-modal');
+    const activateBtn = document.getElementById('activate-fullscreen');
+    const ignoreBtn = document.getElementById('ignore-fullscreen');
+    const pokedexBtn = document.getElementById('btn-pokedex'); 
+
+    if (!localStorage.getItem('fullscreenWarningShown')) {
+        modal.style.display = 'flex';
+    }
+
+    activateBtn.addEventListener('click', async () => {
+        try {
+            await document.documentElement.requestFullscreen();
+            console.log('✅ Fullscreen ativado!');
+        } catch (err) {
+            console.warn('⚠️ Fullscreen API bloqueada:', err.message);
+            alert('💡 Seu navegador bloqueou o fullscreen automático.\n\nPressione F11 para ativar manualmente!');
+        }
+
+        localStorage.setItem('fullscreenWarningShown', 'true');
+        modal.style.display = 'none';
+    
+    });
+
+    ignoreBtn.addEventListener('click', () => {
+        localStorage.setItem('fullscreenWarningShown', 'true');
+        modal.style.display = 'none';
+    });
+
+    pokedexBtn.addEventListener('click', (event) => {
+    });
+
+</script>
+{% endblock %}

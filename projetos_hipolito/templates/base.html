@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Pokémon Battle App{% endblock %}</title>
+    
+    <link rel="icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/x-icon">
+    
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/detail.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/moves.css') }}">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modal.css') }}">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@400;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body class="{% block body_class %}{% endblock %}">
+    <header class="global-header">
+        <div class="header-container">
+            <a href="{{ url_for('index') }}" class="logo-link">
+                <span class="logo">PokéBattle</span>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    
+    <button id="openAIChat" class="floating-ai-button">🤖 Chat IA</button>
+
+    {% include '_ai_chat_modal.html' %} 
+
+    {% block scripts %}
+        <script src="{{ url_for('static', filename='js/ai_modal_logic.js') }}"></script>
+    {% endblock %}
+</body>
+
+</html>
